@@ -28,9 +28,11 @@ checkPassports s =
 checkPassport :: [String] -> Bool
 checkPassport [] = False
 checkPassport a =
-  let req = ["byr","iyr","eyr","hgt","hcl","ecl","pid"]
-      fields = map (takeWhile (/= ':')) a
-  in all (`elem` fields) req
+  let req = [("byr", validBirthYear),("iyr", validIssueYear),("eyr", validExpirationYear),("hgt", validHeight),("hcl", validHairColor),("ecl", validEyeColor),("pid", validPassportID)]
+      getField p = takeWhile (/= ':') p
+      getData p = tail $ dropWhile (/= ':') p
+      ps = map (\p -> (getField p, getData p)) a
+  in all (\(f, v) -> maybe False v (lookup f ps)) req
 
 validYear :: String -> (Int, Int) -> Bool
 validYear "" _ = False
@@ -49,6 +51,31 @@ validIssueYear s = validYear s (2010, 2020)
 validExpirationYear :: String -> Bool
 validExpirationYear s = validYear s (2020, 2030)
 
--- validHeight :: String -> Bool
--- validHeight h = HERE
+validHeight :: String -> Bool
+validHeight "" = False
+validHeight a =
+  let (n, unit) = splitAt (length a - 2) a
+      measure = read n :: Int
+      validUnit = unit == "in" || unit == "cm"
+      validMeasurement = if unit == "in"
+                         then 59 <= measure && measure <= 76
+                         else 150 <= measure && measure <= 193
+  in ((validUnit && measure > 0) && validMeasurement)
 
+validHairColor :: String -> Bool
+validHairColor "" = False
+validHairColor (h:s)
+  | h == '#'  = do
+    let valid = "abcdefABCDEF0123456789"
+        isValid a = a `elem` valid
+    all isValid s
+  | otherwise = False
+
+validEyeColor :: String -> Bool
+validEyeColor c = c `elem` ["amb","blu","brn","gry","grn","hzl","oth"]
+
+validPassportID :: String -> Bool
+validPassportID "" = False
+validPassportID s =
+  let valid = "0123456789"
+  in length s == 9 && all (`elem` valid) s
