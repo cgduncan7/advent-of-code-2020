@@ -8,4 +8,4 @@ Try for yourself! [AoC2020](https://adventofcode.com/2020)
 
 ## Cheating
 
-If you want to cheat and use this library. Create a `data/` directory in each `DayXX` directory with appropriately named file. 
+If you want to cheat and use this library. Create a `data/` directory in each `DayXX` directory with appropriately named file. Can find this file in the 4th line of most files.
