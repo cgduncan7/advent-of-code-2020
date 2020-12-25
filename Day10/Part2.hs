@@ -3,30 +3,18 @@ import qualified Data.Maybe
 import Debug.Trace (trace)
 
 main = do
-  fileHandle <- openFile "data/small.txt" ReadMode
+  fileHandle <- openFile "data/input.txt" ReadMode
   fileContents <- hGetContents fileHandle
   let ls = lines fileContents
   let numbers = sort $ map (\l -> read l :: Int) ls
   let totalJolts = [0] ++ numbers ++ [maximum numbers + 3]
   let adapters = getAdapters totalJolts 0
-  -- print $ show adapters
-  print $ removeRedundantAdapters adapters
+  print $ calculatePaths adapters
   hClose fileHandle
 
-data Path = Path { adapter :: Adapter
-                 , paths :: Int
+data Path = Path { adapterVoltage :: Int
+                 , numPaths :: Int
                  }
-
--- calculatePaths :: [Adapter] -> [Path]
--- calculatePaths [] = []
--- calculatePaths
-
-removeRedundantAdapters :: [Adapter] -> [Adapter]
-removeRedundantAdapters a =
-  let e = last a
-      r = init a
-      i = filter (\(Ad n _ _) -> n `notElem` getAdapterInputs e) a
-  in i
 
 data Adapter = Ad { voltage :: Int
                   , inputs :: [Int]
@@ -39,8 +27,18 @@ getAdapterVoltage (Ad v _ _) = v
 getAdapterInputs :: Adapter -> [Int]
 getAdapterInputs (Ad _ i _) = i
 
-getAdapterOutputs :: Adapter -> [Int]
-getAdapterOutputs (Ad _ _ o) = o
+calculatePaths :: [Adapter] -> Int
+calculatePaths [] = 0
+calculatePaths a = calculatePaths' a []
+
+calculatePaths' :: [Adapter] -> [(Int, Int)] -> Int
+calculatePaths' [] p = snd $ last p
+calculatePaths' a p =
+  let aa = head a
+      as = tail a
+      i = getAdapterInputs aa
+      s = if null i then 1 else sum $ map (Data.Maybe.fromMaybe 1 . (`lookup` p)) i
+  in calculatePaths' as (p ++ [(getAdapterVoltage aa, s)])
 
 getAdapters :: [Int] -> Int -> [Adapter]
 getAdapters [] _ = []
