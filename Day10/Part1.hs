@@ -1,13 +1,13 @@
 import System.IO
-import Debug.Trace (trace)
 
 main = do
-  fileHandle <- openFile "data/input.txt" ReadMode
+  fileHandle <- openFile "data/large.txt" ReadMode
   fileContents <- hGetContents fileHandle
   let ls = lines fileContents
   let numbers = map (\l -> read l :: Int) ls
   let totalJolts = [0] ++ sort numbers ++ [maximum numbers + 3]
   let (a, _, c) = countDifferences $ computeDifferences totalJolts
+  print $ computeDifferences totalJolts
   print $ show (a * c)
   hClose fileHandle
 
