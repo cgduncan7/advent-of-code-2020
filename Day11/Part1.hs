@@ -34,9 +34,6 @@ getSeat s r c
   | r < length s && c < length (s !! r) = s !! r !! c
   | otherwise                           = error "Invalid seat"
 
--- r-1,c-1  r-1,c   r-1,c+1
--- r,c-1    (r,c)   r,c+1
--- r+1,c-1  r+1,c   r+1,c+1
 getOccupiedNeighbors :: [[Char]] -> Int -> Int -> Int 
 getOccupiedNeighbors s r c =
   let neighbors = [(rr,cc) | rr <- [r-1,r,r+1], rr >= 0 && rr < length s, cc <- [c-1,c,c+1], cc >= 0 && cc < length (s !! rr), (rr,cc) /= (r,c)]
